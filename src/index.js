@@ -1,15 +1,35 @@
-const express = require('express');
-const { resolve } = require('path');
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import express from 'express';
+import { DB_NAME } from './constants';
+import path from 'path';
+
+dotenv.config();
 
 const app = express();
-const port = 3010;
 
-app.use(express.static('static'));
 
-app.get('/', (req, res) => {
-  res.sendFile(resolve(__dirname, 'pages/index.html'));
-});
+(async () => {
+  try {
+    const dbURL = `${process.env.MONGODB_URL}/${DB_NAME}`;
+    console.log("Connecting to database at", dbURL);
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+    await mongoose.connect(dbURL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to database");
+
+    app.on('error', (error) => {
+      console.error('Server error:', error);
+      throw error;
+    });
+
+    app.listen(process.env.PORT, () => {
+      console.log(`App is listening on port ${process.env.PORT}`);
+    });
+  } catch (error) {
+    console.error(`Error in connecting db:`, error);
+    throw error;
+  }
+})();
