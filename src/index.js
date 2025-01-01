@@ -1,14 +1,18 @@
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import connectDB from './db/index.js';
 import express from 'express';
-import { DB_NAME } from './constants';
-import path from 'path';
 
-dotenv.config();
+dotenv.config({
+  path: './.env.sample'
+});
+
+//dotenv.config()
 
 const app = express();
 
+connectDB();
 
+/*
 (async () => {
   try {
     const dbURL = `${process.env.MONGODB_URL}/${DB_NAME}`;
@@ -33,3 +37,4 @@ const app = express();
     throw error;
   }
 })();
+*/
