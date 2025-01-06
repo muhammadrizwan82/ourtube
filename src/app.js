@@ -14,5 +14,15 @@ app.use(express.urlencoded({ extended: true, limit: process.env.REQUEST_LIMIT })
 app.use(express.static('public'));
 app.use(cookieParser());
 
+app.get('/index', (req, res) => {
+    res.status(200).json({
+        message: 'ok'
+    })
+    console.log(req)
+});
+// routes
+import userRouter from './routes/user.routes.js'
 
+// routes declaration
+app.use('/api/v1/users', userRouter);
 export { app }
