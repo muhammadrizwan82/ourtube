@@ -20,8 +20,15 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "username or email already exist");
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let avatarLocalPath;
+    let coverImageLocalPath;
+
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarLocalPath = req.files.avatar[0].path;
+    }
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.avatar.coverImage > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avtar file is rquired");
@@ -54,4 +61,33 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(200, newUser, 'User register successfully'))
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+
+    const { username, password } = req.body;
+
+    if ([username, password].some((field) => field.trim() === "")) {
+        throw new ApiError(400, "username & password is required")
+    }
+    const existedUser = await User.findOne({ username: username })
+
+    if (!existedUser) {
+        throw new ApiError(409, "username not exist");
+    }
+
+    const isPasswordCorrect = await existedUser.isPaswordCorrect(password);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "incorrect password");
+    }
+    console.log('token', existedUser.generateRefreshToken())
+    const loginUser = await User.findById(existedUser._id).select(
+        "-password -refreshToken -password"
+    )
+    if (!loginUser) {
+        throw new ApiError(500, "Something went wrong while registering user");
+    }
+
+    res.status(201).json(new ApiResponse(200, loginUser, 'User login successfully'))
+});
+
+export { registerUser, loginUser };

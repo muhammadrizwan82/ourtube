@@ -1,31 +1,38 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import dotenv from 'dotenv';
 
-cloudinary.config({
-    cloud_name: 'ourtube',
-    api_key: '684932722287616',
-    api_secret: 'myInwm4zwEqMJU_YwgFdNTRHKlc'
+dotenv.config({
+    path: './.env.sample'
 });
 
-console.log('CLOUDINARY_CLOUD_NAME', process.env.CLOUDINARY_CLOUD_NAME)
-console.log('CLOUDINARY_API_KEY', process.env.CLOUDINARY_API_KEY)
-console.log('CLOUDINARY_API_SECRET', process.env.CLOUDINARY_API_SECRET)
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const uploadonCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) return null
-        //upload the file to cloudinary
+        if (!localFilePath) return null;
+
+        // Upload the file to Cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
-            asset_folder: "ourtube/library/",
+            folder: "ourtube/library/",  // Corrected option to 'folder'
             resource_type: "auto"
-        })
-        //file has been uploaded
-        console.log('file has been uploaded on cloudinary', response.url)
-        return response
+        });
+
+        console.log('File has been uploaded on Cloudinary:', response.url);
+        return response;
     } catch (error) {
-        console.log('Cloudinary file upload error', error)
-        //fs.unlinkSync(localFilePath) /*Remove the locally Save File*/
-        return null
+        console.error('Cloudinary file upload error:', error);
+        try {
+            await fs.promises.unlink(localFilePath);  // Async file removal
+        } catch (unlinkError) {
+            console.error('Error removing local file:', unlinkError);
+        }
+        return null;
     }
-}
+};
+
 export { uploadonCloudinary };
