@@ -1,8 +1,8 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
 import { User } from '../models/user.model.js'
 import { uploadonCloudinary } from '../utils/fileuploading.js'
-import { ApiResponse } from '../utils/ApiResponse.js'
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -79,15 +79,11 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!isPasswordCorrect) {
         throw new ApiError(400, "incorrect password");
     }
-    console.log('token', existedUser.generateRefreshToken())
-    const loginUser = await User.findById(existedUser._id).select(
-        "-password -refreshToken -password"
-    )
-    if (!loginUser) {
-        throw new ApiError(500, "Something went wrong while registering user");
-    }
+    const accessToken = await existedUser.generateRefreshToken();
+    console.log('token', accessToken);
+ 
 
-    res.status(201).json(new ApiResponse(200, loginUser, 'User login successfully'))
+    res.status(201).json(new ApiResponse(200, {'access-token':accessToken}, 'User login successfully'))
 });
 
 export { registerUser, loginUser };

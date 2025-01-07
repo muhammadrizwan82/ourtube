@@ -22,7 +22,9 @@ app.get('/index', (req, res) => {
 });
 // routes
 import userRouter from './routes/user.routes.js'
+import categoryRouter from './routes/category.routes.js'
 
 // routes declaration
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/category', categoryRouter);
 export { app }
