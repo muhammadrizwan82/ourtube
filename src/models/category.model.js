@@ -5,12 +5,16 @@ const categorySchema = new mongoose.Schema(
         title: {
             type: String,
             required: true,
-            unique: true,
-            camelcase: true,
+            unique: [true,'category already exists']
         },
-        isActive: Boolean,
+        isActive: {
+            type:Boolean,
+            default: true // Setting a default value for isActive
+        },
     },
     { timestamps: true }
 );
 
-export const Caetgory = mongoose.model('Caetgory', categorySchema);
+ 
+
+export const Category = mongoose.model('Category', categorySchema);
