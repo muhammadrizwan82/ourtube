@@ -26,12 +26,15 @@ const uploadonCloudinary = async (localFilePath) => {
         return response;
     } catch (error) {
         console.error('Cloudinary file upload error:', error);
+        return null;
+    }
+    finally {
         try {
+            console.log('localFilePath', localFilePath);
             await fs.promises.unlink(localFilePath);  // Async file removal
         } catch (unlinkError) {
             console.error('Error removing local file:', unlinkError);
         }
-        return null;
     }
 };
 
