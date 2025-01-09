@@ -79,7 +79,8 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!isPasswordCorrect) {
         throw new ApiError(400, "incorrect password");
     }
-    console.log('token', existedUser.generateRefreshToken())
+    console.log('access-token', existedUser.generateRefreshToken())
+    console.log('refresh-token', existedUser.generateRefreshToken())
     const loginUser = await User.findById(existedUser._id).select(
         "-password -refreshToken -password"
     )
