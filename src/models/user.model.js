@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
             type: String
         },
         isActive: {
-            type:Boolean,
+            type: Boolean,
             default: true // Setting a default value for isActive
         },
     },
@@ -65,7 +65,6 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isPaswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
-
 
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
