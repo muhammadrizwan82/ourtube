@@ -150,7 +150,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
     const user = await User.findById(req.user._id);
 
-    const ispasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    const ispasswordCorrect = await user.isPaswordCorrect(oldPassword);
 
     if (!ispasswordCorrect) {
         throw new ApiError(400, 'Incorrect old password');
@@ -217,20 +217,22 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!isDeletedFromCloudinart) {
         throw new ApiError(500, 'Error in updating avatar file');
     }
+
     existingUser.avatar = avatar.url;
     existingUser.save({ validateBeforeSave: false });
 
-    // const user = await existingUser.findByIdAndUpdate(req.user?._id,
-    //     {
-    //         $set: {
-    //             avatar: avatar.url
-    //         }
-    //     }, { new: true })
-    //     .select('-password');
+
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        }, { new: true })
+        .select('-password');
 
     return res
         .status(200)
-        .json(new ApiResponse(200, existingUser.select('-password'), 'avatar updated successfully'));
+        .json(new ApiResponse(200, user, 'avatar updated successfully'));
 
 });
 
@@ -252,23 +254,25 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     if (!existingUser) {
         throw new ApiError(404, 'User not found');
     }
-    const isDeleteFromCloudinary = await deleteFromCloudinary(existingUser.coverImage);
-    if (!isDeleteFromCloudinary) {
-        throw new ApiError(500, 'Error in updating coverImage file');
+    if (existingUser.coverImage) {
+        const isDeleteFromCloudinary = await deleteFromCloudinary(existingUser?.coverImage);
+        if (!isDeleteFromCloudinary) {
+            throw new ApiError(500, 'Error in deleting coverImage file');
+        }
     }
     existingUser.coverImage = coverImage.url;
     existingUser.save({ validateBeforeSave: false });
 
-    // const user = await User.findByIdAndUpdate(req.user?._id,
-    //     {
-    //         $set: {
-    //             coverImage: coverImage.url
-    //         }
-    //     }, { new: true })
-    //     .select('-password');
+    const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set: {
+                coverImage: coverImage.url
+            }
+        }, { new: true })
+        .select('-password');
     return res
         .status(200)
-        .json(new ApiResponse(200, existingUser.select('-password'), 'coverImage updated successfully'));
+        .json(new ApiResponse(200, user, 'coverImage updated successfully'));
 
 });
 
